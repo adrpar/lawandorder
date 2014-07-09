@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 from warnings import filterwarnings
@@ -23,7 +24,9 @@ class anaToDB:
 								port=self.port,
 								user=self.user,
 								passwd=pwd,
-								db=self.db)	
+								db=self.db,
+								charset='utf8',
+                    			use_unicode=True)	
 
 	def articleAlreadyProcessed(self, id):
 		cur = self.dbConnect.cursor()
@@ -36,32 +39,23 @@ class anaToDB:
 		else:
 			return True
 
-	def writeArticlesAna(self, article_id, POSTags, NERTagsEn, NERTagsGe):
+	def writeArticlesAna(self, article_id, NERTags):
 		if(self.articleAlreadyProcessed(article_id)):
 			return
 
 		#reconfigure tags
-		POSTagsNew = [ word for x in POSTags for word in x ]
-		NERTagsEnNew = [ word for x in NERTagsEn for word in x ]
-		NERTagsGeNew = [ word for x in NERTagsGe for word in x ]
+		NERTagsNew = [ word for x in NERTags for word in x ]
 
-
-		POSTagsString = json.dumps(POSTags, ensure_ascii=False, encoding='utf8')
-		NERTagsEnString = json.dumps(NERTagsEn, ensure_ascii=False, encoding='utf8')
-		NERTagsGeString = json.dumps(NERTagsGe, ensure_ascii=False, encoding='utf8')
+		NERTagsString = json.dumps(NERTagsNew, ensure_ascii=False, encoding='utf8')
 
 		cur = self.dbConnect.cursor()
 
 		cur.execute("""INSERT INTO articlesAnaSum
 										(article_id,
-										 POSTags,
-										 NERTagsEn,
-										 NERTagsGe)
-								VALUES ( %s, %s, %s, %s )""",
+										 NERTags)
+								VALUES ( %s, %s, %s )""",
 						[article_id,
-						 POSTagsString,
-						 NERTagsEnString,
-						 NERTagsGeString,
+						 NERTagsString
 					])
 
 		#get the current articlesAnaSum_id
@@ -75,24 +69,20 @@ class anaToDB:
 
 		self.dbConnect.commit()
 
-		self.writeWords(articlesAnaSum_id, POSTagsNew, NERTagsEnNew, NERTagsGeNew)
+		self.writeWords(articlesAnaSum_id, NERTagsNew)
 
-	def writeWords(self, articlesAnaSum_id, POSTags, NERTagsEn, NERTagsGe):
+	def writeWords(self, articlesAnaSum_id, NERTags):
 		cur = self.dbConnect.cursor()
 
-		for word in zip(POSTags, NERTagsEn, NERTagsGe):
+		for word in NERTags:
 			cur.execute("""INSERT INTO words 
 											(articlesAnaSum_id,
 											 word,
-											 POSTag,
-											 NERTagEn,
-											 NERTagGe)
-									VALUES ( %s, %s, %s, %s, %s )""",
+											 NERTag)
+									VALUES ( %s, %s, %s )""",
 							[articlesAnaSum_id,
-							 word[1][0],
-							 word[0][1],
-							 word[1][1],
-							 word[2][1],
+							 word[0],
+							 word[1],
 						])
 
 		cur.close()

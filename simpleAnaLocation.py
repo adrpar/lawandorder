@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import sys
 import json
 import anaToDB as anaDb
@@ -7,6 +6,9 @@ import rssToDB as rssDb
 import re
 import requests, urllib
 from pprint import pprint
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 def analyseLocation(anaDbConnect, rssDbConnect):
 	articles = rssDbConnect.fetchAllArticles()
@@ -75,6 +77,8 @@ def jsonArticles(anaDbConnect, rssDbConnect):
 					"title": article[5],
 					"text": article[7],
 				 }
+
+		#print(article[7])
 
 		results.append(result)
 

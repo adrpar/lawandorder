@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 import json
@@ -11,9 +12,7 @@ def analyseArticles(anaDbConnect, rssDbConnect):
 	articles = rssDbConnect.fetchAllArticles()
 
 	sentencesParser = nltk.data.load('tokenizers/punkt/german.pickle')
-	POSTagger = nltk.tag.stanford.POSTagger('/opt/stanford-postagger/models/german-hgc.tagger', '/opt/stanford-postagger/stanford-postagger.jar', encoding="utf8")
-	NERTaggerEn = nltk.tag.stanford.NERTagger('/opt/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz', '/opt/stanford-ner/stanford-ner.jar', encoding="utf8")
-	NERTaggerGe = nltk.tag.stanford.NERTagger('/opt/stanford-ner/classifiers/hgc_175m_600.crf.ser.gz', '/opt/stanford-ner/stanford-ner.jar', encoding="utf8")
+	NERTagger = nltk.tag.stanford.NERTagger('/Users/adrian/Documents/Development/lawandorder/data/ner-model.ser.gz', '/opt/stanford-ner/stanford-ner.jar', encoding="utf8")
 
 	#go through all articles and do some basic text analysis
 	for article in articles:
@@ -24,18 +23,14 @@ def analyseArticles(anaDbConnect, rssDbConnect):
 			sentences = sentencesParser.tokenize(article[7])
 
 			sentenceTags = []
-			POSTags = []
-			NERTagsEn = []
-			NERTagsGe = []
+			NERTags = []
 
 			for x in sentences:
 				sentenceTags = sentenceTags + [ x.split() ]
 
-			POSTags = POSTags + POSTagger.batch_tag(sentenceTags)
-			NERTagsEn = NERTagsEn + NERTaggerEn.batch_tag(sentenceTags)
-			NERTagsGe = NERTagsGe + NERTaggerGe.batch_tag(sentenceTags)
+			NERTags = NERTags + NERTagger.batch_tag(sentenceTags)
 
-			anaDbConnect.writeArticlesAna(article[0], POSTags, NERTagsEn, NERTagsGe)
+			anaDbConnect.writeArticlesAna(article[0], NERTags)
 
 	print("Finished analysing everything")
 
@@ -51,29 +46,3 @@ if __name__ == "__main__":
     connAna.openDBConnection("mastr0")
 
     analyseArticles(connAna, connRss)
-
-#author
-#author_detail
-#authors
-#docs
-#geneator
-#geneator_detail
-#language
-#links
-#links
-#published
-#subtitle
-#subtitle_detail
-#title
-#title_detail
-#updated
-
-
-
-#id
-#link
-#links
-#published
-#title
-#title_detail
-

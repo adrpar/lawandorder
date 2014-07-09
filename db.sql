@@ -50,9 +50,7 @@ create table rssArticles (
 create table articlesAnaSum (
 	articlesAnaSum_id bigint not null auto_increment,
 	article_id bigint not null,
-	POSTags text CHARACTER SET utf8,
-	NERTagsEn text CHARACTER SET utf8,
-	NERTagsGe text CHARACTER SET utf8,
+	NERTags text CHARACTER SET utf8,
 	primary key(articlesAnaSum_id)
 );
 
@@ -60,9 +58,7 @@ create table words (
 	word_id bigint not null auto_increment,
 	articlesAnaSum_id bigint not null,
 	word text CHARACTER SET utf8,
-	POSTag text CHARACTER SET utf8,
-	NERTagEn text CHARACTER SET utf8,
-	NERTagGe text CHARACTER SET utf8,
+	NERTag text CHARACTER SET utf8,
 	primary key(word_id)
 );
 
